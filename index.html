@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log Plotter</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="formulas.js"></script>
+  <style>
+    body { margin: 0; background: #808080; }
+    #plot { width: 100vw; height: 99vh; }
+  </style>
+</head>
+<body>
+  <div id="plot"></div>
+
+  <script>
+    // === DATA GENERATION ===
+    const stopsUnder = -10, stopsOver = 12, numPoints = 10000;
+    const stops = Array.from({ length: numPoints }, (_, i) => stopsUnder + i * (stopsOver - stopsUnder) / (numPoints - 1));
+    const exposures = stops.map(s => 0.18 * Math.pow(2, s));
+    const funcs = [
+      ["ACEScc", linToAcescc, '#676767'],
+      ["ACEScct", linToAcescct, '#F5F5F5'],
+      ["Apple Log", linToAppleLog, '#0D0D0D'],
+      ["ARRI LogC3", linToArrilogC3, '#024BFF'],
+      ["ARRI LogC4", linToArrilogC4, '#DB0000'],
+      ["Blackmagic Film Gen 5", linToBMFilm5, '#C9A303'],
+      ["Canon CLog2", linToCanonLog2, '#C20078'],
+      ["Canon CLog3", linToCanonLog3, '#A9561E'],
+      ["DaVinci Intermediate", linToDaVinci, '#069AF3'],
+      ["DJI D-Log", linToDJI, '#00008B'],
+      ["Filmlight T-Log", linToFilmLight, '#029386'],
+      ["Fujifilm F-Log", linToFujifilmFLog, '#733E00'],
+      ["Fujifilm F-Log2", linToFujifilmFLog2, '#580F41'],
+      ["JPLog2", linToJPLog2, '#F45234'],
+      ["Kodak Cineon Log", linToKodak, '#4B0082'],
+      ["Leica L-Log", linToLeica, '#054907'],
+      ["Nikon N-Log", linToNikon, '#850000'],
+      ["Panasonic V-Log", linToPanasonicVLog, '#9A0EEA'],
+      ["REDLog3G10", linToREDLog3G10, '#EBEB00'],
+      ["Sony S-Log2", linToSonySLog2, '#F97306'],
+      ["Sony S-Log3", linToSonySLog3, '#15B01A']
+    ];
+
+    const traces = funcs.map(([name, fn, color]) => ({
+      x: stops,
+      y: exposures.map(fn),
+      mode: 'lines',
+      name,
+      line: { width: 1.25, color },
+      visible: true
+    }));
+
+    const layout = {
+      title: { text: 'Common Log Curves', font: {size: 17} },
+      xaxis: { title: { text: 'Stops Above/Below 18% Gray', font: {size: 16 } }, range: [stopsUnder, stopsOver], dtick: 2, tickfont: {size: 13} },
+      yaxis: { range: [0, 1], dtick: 0.1, tickfont: {size: 13} },
+      plot_bgcolor: '#CCCCCC',
+      paper_bgcolor: '#808080',
+      legend: {
+        bgcolor: '#BFBFBF',
+        x: 0,
+        y: 1,
+        xanchor: 'left',
+        yanchor: 'top',
+        orientation: 'v',
+        font: {size: 13.5}
+      },
+      hoverlabel: {
+        font: {size: 14}
+      },
+      margin: { l: 75, t: 50, r: 50, b: 50 }
+    };
+
+    Plotly.newPlot('plot', traces, layout, { responsive: true });
+  </script>
+</body>
+</html>
